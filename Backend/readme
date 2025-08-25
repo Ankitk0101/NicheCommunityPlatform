@@ -1,0 +1,337 @@
+NicheCommunityPlatform API Documentation
+📋 Overview
+A comprehensive REST API for a community platform featuring user authentication, community management, post creation, comments, and real-time interactions. Built with Node.js, Express, MongoDB, and Socket.io.
+
+🚀 Base URL
+text
+http://localhost:5000
+🔐 Authentication
+All endpoints except /auth/signup, /auth/login, /auth/forgot-password, and /auth/reset-password require authentication via JWT token sent in cookies or Authorization header.
+
+📊 API Endpoints
+🔐 Authentication Endpoints
+Register User
+POST /auth/signup
+
+json
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+Login User
+POST /auth/login
+
+json
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+Get Current User
+GET /auth/me
+Headers: Cookie: token=jwt_token or Authorization: Bearer jwt_token
+
+Logout User
+POST /auth/logout
+
+Forgot Password
+POST /auth/forgot-password
+
+json
+{
+  "email": "john@example.com"
+}
+Reset Password
+POST /auth/reset-password/:token
+
+json
+{
+  "newPassword": "newpassword123"
+}
+🏠 Community Endpoints
+Create Community
+POST /community (multipart/form-data)
+
+text
+name: "JavaScript Developers" (required)
+description: "Community for JS developers" (required)
+category: "technology" (required)
+tags: "javascript,web development"
+privacy: "public" or "private"
+bannerImage: [file] (optional)
+icon: [file] (optional)
+Get All Communities
+GET /community?page=1&limit=10
+
+Get Community Suggestions
+GET /community/suggestions
+
+Get Community by ID
+GET /community/:id
+
+Update Community
+PUT /community/:id
+
+json
+{
+  "description": "Updated description",
+  "tags": ["updated", "tags"]
+}
+Delete Community
+DELETE /community/:id
+
+Join Community
+POST /community/:id/join
+
+Leave Community
+POST /community/:id/leave
+
+Update Community Images
+POST /community/:id/images (multipart/form-data)
+
+text
+bannerImage: [file] (optional)
+icon: [file] (optional)
+Approve Join Request
+POST /community/:communityId/approve/:userId
+
+Promote to Moderator
+POST /community/:communityId/promote/:userId
+
+Add Community Rule
+POST /community/:id/rules
+
+json
+{
+  "title": "No Spam",
+  "description": "Avoid posting spam content"
+}
+Search Communities
+GET /community/search?q=javascript
+
+📝 Post Endpoints
+Create Post
+POST /posts (multipart/form-data)
+
+text
+title: "Getting started with React" (required)
+content: "Post content..." (required)
+communityId: "community_id_here" (required)
+tags: "react,javascript,frontend"
+media: [file] (optional)
+Get All Posts
+GET /posts?page=1&limit=10&communityId=id&sort=hot
+
+Get Post by ID
+GET /posts/:id
+
+Update Post
+PUT /posts/:id
+
+json
+{
+  "title": "Updated title",
+  "content": "Updated content...",
+  "tags": ["updated", "tags"]
+}
+Delete Post
+DELETE /posts/:id
+
+Vote on Post
+POST /posts/:id/vote
+
+json
+{
+  "voteType": "up" or "down"
+}
+Search Posts
+GET /posts/search?q=react&page=1&limit=10
+
+Get User Posts
+GET /posts/user/:userId?page=1&limit=10
+
+💬 Comment Endpoints
+Create Comment
+POST /comments (multipart/form-data)
+
+text
+content: "Great post!" (required)
+postId: "post_id_here" (required)
+parentComment: "parent_id" (optional, for replies)
+media: [file] (optional)
+Get Post Comments
+GET /comments/post/:postId?page=1&limit=20&sort=newest
+
+Get Comment Replies
+GET /comments/:commentId/replies
+
+Update Comment
+PUT /comments/:commentId
+
+json
+{
+  "content": "Updated comment content"
+}
+Delete Comment
+DELETE /comments/:commentId
+
+Vote on Comment
+POST /comments/:commentId/vote
+
+json
+{
+  "voteType": "up" or "down"
+}
+🛠️ Setup & Installation
+Prerequisites
+Node.js (v14 or higher)
+
+MongoDB
+
+Cloudinary account
+
+Environment Variables
+env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/nichecommunity
+JWT_SECRET=your_super_secret_jwt_key
+JWT_EXPIRES_IN=7d
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_key
+CLOUDINARY_API_SECRET=your_cloudinary_secret
+FRONTEND_URL=http://localhost:3000
+NODE_ENV=development
+Installation
+bash
+# Clone repository
+git clone <repository-url>
+cd nichecommunityplatform/backend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Start production server
+npm start
+📦 Request/Response Examples
+Successful Login Response
+json
+{
+  "message": "Login successful",
+  "user": {
+    "_id": "68a570af8e5492525d1168e5",
+    "username": "john_doe",
+    "email": "john@example.com",
+    "profilePicture": "",
+    "interests": []
+  },
+  "token": "jwt_token_here"
+}
+Community Response
+json
+{
+  "community": {
+    "bannerImage": {
+      "public_id": "communities/banners/abc123",
+      "url": "https://res.cloudinary.com/cloud/image/upload/abc123.jpg"
+    },
+    "icon": {
+      "public_id": "communities/icons/xyz456",
+      "url": "https://res.cloudinary.com/cloud/image/upload/xyz456.png"
+    },
+    "_id": "68a75586669429c94595769e",
+    "name": "JavaScript Developers",
+    "description": "Community for JS developers",
+    "creator": {
+      "_id": "68a570af8e5492525d1168e5",
+      "username": "john_doe"
+    },
+    "memberCount": 150,
+    "tags": ["javascript", "web development"],
+    "category": "technology",
+    "privacy": "public"
+  }
+}
+Error Response
+json
+{
+  "message": "Community not found",
+  "error": "Invalid community ID"
+}
+🔌 Socket.io Events
+Client to Server
+joinPost - Join post room for real-time updates
+
+joinCommunity - Join community room
+
+newComment - Broadcast new comment
+
+Server to Client
+newComment - Receive new comment in post
+
+updateComment - Comment updated
+
+deleteComment - Comment deleted
+
+voteComment - Vote count updated
+
+📁 Project Structure
+text
+backend/
+├── config/
+│   └── db.js                 # Database configuration
+├── controllers/              # Route controllers
+│   ├── auth.controller.js
+│   ├── community.controller.js
+│   ├── post.controller.js
+│   └── comment.controller.js
+├── middleware/               # Custom middleware
+│   ├── auth.middleware.js
+│   └── validateEmail.middleware.js
+├── models/                   # MongoDB models
+│   ├── auth.model.js
+│   ├── community.model.js
+│   ├── post.model.js
+│   └── comment.model.js
+├── routes/                   # Route definitions
+│   ├── auth.route.js
+│   ├── community.route.js
+│   ├── post.route.js
+│   └── comment.route.js
+├── utils/                    # Utility functions
+│   └── sendEmail.util.js
+├── server.js                 # Main server file
+└── package.json
+🐛 Troubleshooting
+Common Issues
+JWT Token Issues: Ensure token is sent in cookies or Authorization header
+
+File Upload Failures: Check Cloudinary configuration and file size limits
+
+Database Connection: Verify MongoDB is running and connection string is correct
+
+CORS Errors: Ensure frontend URL is correctly set in environment variables
+
+Testing with Postman
+Set up environment variables in Postman
+
+Use form-data for file upload endpoints
+
+Include JWT token in cookies or Authorization header for protected routes
+
+📄 License
+This project is licensed under the MIT License.
+
+🤝 Contributing
+Fork the repository
+
+Create a feature branch (git checkout -b feature/amazing-feature)
+
+Commit changes (git commit -m 'Add amazing feature')
+
+Push to branch (git push origin feature/amazing-feature)
+
+Open a Pull Request
+
