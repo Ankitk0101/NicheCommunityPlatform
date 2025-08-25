@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL:  'http://localhost:5000',
+  baseURL:  'https://nichecommunityplatform-1.onrender.com',
   withCredentials: true,  
 });
 
